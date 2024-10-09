@@ -3,16 +3,18 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 app.use(express.json());
-const { router } = require('./routers/routers');
-app.use(router)
+const { router, verifyRouter } = require('./routers/routers');
+const { verifyToken, errorHandler } = require('./middleware/middleware');
+app.use(router);
+app.use(verifyToken);
+app.use(verifyRouter);
+app.use(errorHandler);
 
-app.get('/home', (req, res)=>{
+app.get('/', (req, res)=>{
     res.json({
         message: "Welcome home!"
     });
 });
-
-
 
 
 const port = 5000;

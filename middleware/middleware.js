@@ -1,20 +1,32 @@
 
 const jwt = require('jsonwebtoken');
-
-// const user = {
-//     id: 1,
-//     userName: "jonny",
-//     email: "jonny2@gmail.com"
-// };
+const joi = require('joi');
+const { validateLogin } = require('../validator');
 
 //token get
 function getToken(req, res){
-    let user = req.body;
+let user = req.body;
+if (user.user_name === undefined) {
+    res.json({
+        success: false,
+        message: "No details passed!"
+    });
+    return;
+};
+
+//validate
+const {error, value} = validateLogin(user);
+if (error) {
+    console.log(error);
+    res.send(error.details);
+    return;
+};
+
     jwt.sign({user}, 'secretkey', (err, token)=>{
         if (err) {
             res.json({
                 message: "Error occured!"
-            })
+            });
         } else {
             res.json({
                 user,
@@ -38,17 +50,20 @@ function verifyToken(req, res, next) {
         req.token = veriToken;
         next()
     } else {
-        res.sendStatus(403)
+        next({
+            success: false,
+            status: 401,
+            message: "Error occured!"
+        });
     };
     } catch (error) {
-        res.sendStatus(401)
+        res.sendStatus(401);
     };
 };
 
 //error handling
 function errorHandler (err, req, res, next) {
-    res.sendStatus(500)
-    res.render('error', { error: err })
-  }
+    res.sendStatus(err.status);
+  };
 
-module.exports = { getToken, verifyToken, errorHandler }
+module.exports = { getToken, verifyToken, errorHandler };

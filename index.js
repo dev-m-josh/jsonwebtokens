@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const joi = require('joi');
 
 const app = express();
 app.use(express.json());
